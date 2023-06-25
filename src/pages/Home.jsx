@@ -1,9 +1,35 @@
-import React from 'react'
+import { useEffect, useState } from 'react';
+import { getTrending } from 'api/tmdb';
+import TrendingList from 'components/TrendingList';
+import CenteredSpinner from 'components/CenteredSpinner';
 
 const Home = () => {
-  return (
-    <div>Home</div>
-  )
-}
+  const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-export default Home
+  useEffect(() => {
+    getTrending()
+      .then(data => {
+        setMovies(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error(`Oh no, error: ${error}`);
+        setError(error);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <CenteredSpinner />;
+  if (error) return <p>Oops, something went wrong. Please try again later.</p>;
+
+  return (
+    <>
+      <h1 className="mb-3">Trending today</h1>
+      <TrendingList movies={movies} />
+    </>
+  );
+};
+
+export default Home;
