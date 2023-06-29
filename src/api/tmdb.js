@@ -77,3 +77,15 @@ export async function getCast(movieId, language = 'en-US') {
     throw error;
   }
 }
+
+export async function getReviews(movieId, page=1, language = 'en-US') {
+  const url = `/movie/${movieId}/reviews`;
+  const params = { language, page };
+  try {
+    const response = await tmdb(url, { params });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
