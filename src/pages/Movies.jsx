@@ -11,6 +11,7 @@ const Movies = () => {
   const [query, setQuery] = useState(searchParams.get('query') ?? '');
   const [movies, setMovies] = useState([]);
   const [state, setState] = useState(states.LOADED);
+  
 
   const handleInputChange = e => {
     setQuery(e.target.value.trim());
@@ -22,7 +23,6 @@ const Movies = () => {
 
     if (!query) {
       e.target.reset();
-      // setQuery('');
       setSearchParams({});
       return;
     }
@@ -32,7 +32,6 @@ const Movies = () => {
 
     getMovieBySearch(query)
       .then(data => {
-        console.log('data', data);
         if (!data.length) {
           setState(states.NO_RESULTS);
         }
