@@ -1,34 +1,26 @@
 import { getMovieBySearch } from 'api/tmdb';
 import CenteredSpinner from 'components/CenteredSpinner';
 import MoviesList from 'components/MoviesList';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import { useSearchParams } from 'react-router-dom';
 import { states } from 'utils/constants';
 
 const Movies = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [query, setQuery] = useState(searchParams.get('query') ?? '');
+  const [query, setQuery] = useState(() => searchParams.get('query') ?? '');
+  const [inputValue, setInputValue] = useState(query);
   const [movies, setMovies] = useState([]);
   const [state, setState] = useState(states.LOADED);
-  
 
-  const handleInputChange = e => {
-    setQuery(e.target.value.trim());
-  };
-
-  const handleSubmit = e => {
-    e.preventDefault();
-    setMovies([]);
-
+  useEffect(() => {
     if (!query) {
-      e.target.reset();
-      setSearchParams({});
+      setMovies([]);
       return;
     }
 
-    setSearchParams({ query });
     setState(states.LOADING);
+    setMovies([]);
 
     getMovieBySearch(query)
       .then(data => {
@@ -41,7 +33,25 @@ const Movies = () => {
         setState(states.ERROR);
       })
       .finally(() => setTimeout(() => setState(states.LOADED), 3000));
+  }, [query]);
+
+  const handleInputChange = e => {
+    setInputValue(e.target.value);
   };
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    const searchQuery = inputValue.trim();
+    if (!searchQuery) {
+      e.target.reset();
+      setSearchParams({});
+      return;
+    }
+    setQuery(searchQuery);
+
+    setSearchParams({ query: searchQuery });
+  };
+
 
   switch (state) {
     case states.LOADING:
@@ -56,7 +66,7 @@ const Movies = () => {
                 placeholder="Film title"
                 aria-label="Film title"
                 name="query"
-                value={query}
+                value={inputValue}
                 onChange={handleInputChange}
               />
               <Button
