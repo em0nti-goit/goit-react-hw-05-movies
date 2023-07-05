@@ -10,11 +10,12 @@ const Movies = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [movies, setMovies] = useState([]);
   const [state, setState] = useState(states.LOADED);
-  let query = searchParams.get('query');
+  const query = searchParams.get('query');
 
    useEffect(() => {
     if (!query) {
       setMovies([]);
+      setState(states.LOADED);
       return;
     }
 
@@ -22,15 +23,17 @@ const Movies = () => {
 
     getMovieBySearch(query)
       .then(data => {
-        if (!data.length) {
+        if (data.length) {
+          setMovies(data);
+          setState(states.LOADED);
+        } else {
           setState(states.NO_RESULTS);
         }
-        setMovies(data);
       })
       .catch(error => {
         setState(states.ERROR);
       })
-      .finally(() => setTimeout(() => setState(states.LOADED), 3000));
+      
   }, [query]);
 
   const handleSearchFormSubmit = searchQuery => {
@@ -40,7 +43,6 @@ const Movies = () => {
     }
     if (query !== searchQuery) {
       setMovies([]);
-      query = searchQuery;
       setSearchParams({ query: searchQuery });
     }
   };
